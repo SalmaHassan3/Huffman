@@ -3,9 +3,12 @@ package huffman;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -84,7 +87,7 @@ public class Huffman {
             return;
         }
 
-        if (root.getCharacter() != '$') {
+        if (root.getLeft()==null&&root.getRight()==null) {
             System.out.println(root.getCharacter() + ": " + code);
             codesMap.put(root.getCharacter(), code);
         }
@@ -94,29 +97,39 @@ public class Huffman {
     }
 
     public static void saveCode() {
-        BufferedWriter bw = null;
-        FileWriter fw = null;
         String inputFile = "inputfile.txt";
-        String outputFile = "output.txt";
+        String outputFile = "output";
         FileReader fr = null;
         BufferedReader br = null;
+        FileOutputStream stream = null;
         try {
             fr = new FileReader(inputFile);
             br = new BufferedReader(fr);
-            fw = new FileWriter(outputFile);
-            bw = new BufferedWriter(fw);
-            //System.out.println("salma");
+           stream = new FileOutputStream(outputFile);
             try {
-                String code;
+                //saving huffman codes
+                for(char key: codesMap.keySet()){
+                    
+                }
+                //saving compressed file
+                String code= new String();
                 int ch;
                 char c;
                 while ((ch = br.read()) != -1) {
                     c = (char) ch;
-                    code = codesMap.get(c);
-                    bw.write(code);
-                    byte bit[]=code.getBytes();
+                    code += codesMap.get(c);
+                    if(code.length()%8==0){
+                         byte[] bytes = new BigInteger(code,2).toByteArray();
+                         stream.write(bytes);
+                         code="";
+                    }
                 }
-                bw.close();
+                
+              if(code.length()!=0){
+                  byte[] bytes = new BigInteger(code,2).toByteArray();
+                         stream.write(bytes);
+              }
+             stream.close();
             } catch (FileNotFoundException ex) {
                 System.out.println("Unable to open file '" + outputFile + "'");
             } catch (IOException ex) {
@@ -138,9 +151,10 @@ public class Huffman {
         read();
         printMap();
         insertToHeap();
-        //printHeap();
         Node root = buildHuffmanTree();
         getHuffmanCodes(root, "");
         saveCode();
+        
+        
     }
 }
