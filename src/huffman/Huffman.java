@@ -1,8 +1,10 @@
 package huffman;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -48,7 +50,7 @@ public class Huffman {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-       // map.put('`', 1);
+        // map.put('`', 1);
     }
 
     public static void insertToHeap() {
@@ -76,17 +78,56 @@ public class Huffman {
             System.out.println("key: " + key + " value: " + map.get(key));
         }
     }
-    public static void getHuffmanCodes(Node root, String code){
-    if (root==null)
-        return;
- 
-    if (root.getCharacter() != '$')
-        System.out.println(root.getCharacter()+ ": "+ code); 
- 
-    getHuffmanCodes(root.getLeft(), code + "0");
-    getHuffmanCodes(root.getRight(), code + "1");
+
+    public static void getHuffmanCodes(Node root, String code) {
+        if (root == null) {
+            return;
+        }
+
+        if (root.getCharacter() != '$') {
+            System.out.println(root.getCharacter() + ": " + code);
+            codesMap.put(root.getCharacter(), code);
+        }
+
+        getHuffmanCodes(root.getLeft(), code + "0");
+        getHuffmanCodes(root.getRight(), code + "1");
     }
 
+    public static void saveCode() {
+        BufferedWriter bw = null;
+        FileWriter fw = null;
+        String inputFile = "inputfile.txt";
+        String outputFile = "output.txt";
+        FileReader fr = null;
+        BufferedReader br = null;
+        try {
+            fr = new FileReader(inputFile);
+            br = new BufferedReader(fr);
+            fw = new FileWriter(outputFile);
+            bw = new BufferedWriter(fw);
+            //System.out.println("salma");
+            try {
+                String code;
+                int ch;
+                char c;
+                while ((ch = br.read()) != -1) {
+                    c = (char) ch;
+                    code = codesMap.get(c);
+                    bw.write(code);
+                    byte bit[]=code.getBytes();
+                }
+                bw.close();
+            } catch (FileNotFoundException ex) {
+                System.out.println("Unable to open file '" + outputFile + "'");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + inputFile + "'");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 //    public static void printHeap() {
 //        while (!queue.isEmpty()) {
 //            System.out.println(queue.poll().getValue());
@@ -99,6 +140,7 @@ public class Huffman {
         insertToHeap();
         //printHeap();
         Node root = buildHuffmanTree();
-        getHuffmanCodes(root,"");
+        getHuffmanCodes(root, "");
+        saveCode();
     }
 }
