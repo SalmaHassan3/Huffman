@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -113,8 +114,10 @@ public class Huffman {
             try {
                 //saving huffman codes in the header
                 byte[] CodeSize=ByteBuffer.allocate(4).putInt(getCodeSize()).array();
+                System.out.println("size of code:"+getCodeSize());
                 stream.write(CodeSize);
                 byte [] mapSizeBytes=ByteBuffer.allocate(4).putInt(codesMap.size()).array();
+                System.out.println("size of map:"+codesMap.size());
                     stream.write(mapSizeBytes);
                 for(char key: codesMap.keySet()){
                     String character=new String();
@@ -139,9 +142,9 @@ public class Huffman {
                         char s;
                         for(int i=0;i<length;i++){
                         if((s=code.charAt(i))=='1')
-                            bytes[i/Byte.SIZE]=(byte)(bytes[i/Byte.SIZE]|(0x00 >>>(i%Byte.SIZE)));
+                         bytes[i/Byte.SIZE]=(byte)(bytes[i/Byte.SIZE]|(0x00 >>>(i%Byte.SIZE)));
                         }
-                         System.out.println(bytes[0]);
+                         
                         stream.write(bytes);
                          code="";
                     }
@@ -166,9 +169,7 @@ public class Huffman {
             }
         } catch (FileNotFoundException ex) {
             System.out.println("Unable to open file '" + inputFile + "'");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        } 
     }
     public static void decompress(){
         String inputFile = "compressed";
@@ -179,18 +180,19 @@ public class Huffman {
             stream = new FileInputStream(file);
             byte fileContent[] = new byte[(int)file.length()];
             stream.read(fileContent);
+            stream.close();
             String s=new String();
             int sizeOfCode,sizeOfMap;
             for(i=0;i<4;i++){
-              s+=fileContent[i];
+            s+=String.format("%02x", fileContent[i]);
             }
-            sizeOfCode=Integer.parseInt(s);
+            sizeOfCode = Integer.parseInt(s,16);
             System.out.println("size of code:"+sizeOfCode);
             s="";
             for(j=i;j<i+4;j++){
-                s+=fileContent[j];
+                s+=String.format("%02x", fileContent[j]);
             }
-            sizeOfMap=Integer.parseInt(s);
+            sizeOfMap=Integer.parseInt(s,16);
             System.out.println("size of map:"+sizeOfMap);
             s="";
             int count=j;
@@ -198,9 +200,9 @@ public class Huffman {
                  c=(char)fileContent[count];
                  count++;
                  for(m=count;m<count+4;m++){
-                     s+=fileContent[m];
+                     s+=String.format("%02x", fileContent[m]);
                  }
-                size=Integer.parseInt(s);
+                size=Integer.parseInt(s,16);
                 s="";
                 String code=new String();
                 for(n=m;n<m+size;n++){
@@ -209,8 +211,9 @@ public class Huffman {
                 codesMap2.put(c, code);
                 count=n;
             }
+            s="";
 //            for(int y=count;y<fileContent.length;y++){
-//                //System.out.println("salma");
+//                s+= String.format("%8s", Integer.toBinaryString(fileContent[y] & 0xFF)).replace(' ', '0');
 //                System.out.println(fileContent[y]);
 //            }
         }
