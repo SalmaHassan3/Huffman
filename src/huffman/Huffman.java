@@ -1,6 +1,8 @@
 package huffman;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -14,6 +16,7 @@ public class Huffman {
 
     public static HashMap<Character, Integer> map = new HashMap<>();
     public static HashMap<Character, String> codesMap = new HashMap<>();
+    public static HashMap<Character, String> codesMap2 = new HashMap<>();
     public static PriorityQueue<Node> queue = new PriorityQueue<>(new Comparator<Node>() {
         public int compare(Node node1, Node node2) {
             if (node1.getValue() < node2.getValue()) {
@@ -110,6 +113,7 @@ public class Huffman {
             try {
                 //saving huffman codes in the header
                 byte[] CodeSize=ByteBuffer.allocate(4).putInt(getCodeSize()).array();
+                stream.write(CodeSize);
                 byte [] mapSizeBytes=ByteBuffer.allocate(4).putInt(codesMap.size()).array();
                     stream.write(mapSizeBytes);
                 for(char key: codesMap.keySet()){
@@ -137,9 +141,11 @@ public class Huffman {
                         if((s=code.charAt(i))=='1')
                             bytes[i/Byte.SIZE]=(byte)(bytes[i/Byte.SIZE]|(0x00 >>>(i%Byte.SIZE)));
                         }
+                         System.out.println(bytes[0]);
                         stream.write(bytes);
                          code="";
                     }
+                   
                 }
               if(code.length()!=0){
                   int length=code.length();
@@ -149,6 +155,7 @@ public class Huffman {
                         if((s=code.charAt(i))=='1')
                             bytes[i/Byte.SIZE]=(byte)(bytes[i/Byte.SIZE]|(0x00 >>>(i%Byte.SIZE)));
                         }
+                        
                         stream.write(bytes);
               }
              stream.close();
@@ -163,6 +170,57 @@ public class Huffman {
             ex.printStackTrace();
         }
     }
+    public static void decompress(){
+        String inputFile = "compressed";
+        File file = new File(inputFile);
+        FileInputStream stream = null;
+        int i,j,m,size,n; char c;
+        try{
+            stream = new FileInputStream(file);
+            byte fileContent[] = new byte[(int)file.length()];
+            stream.read(fileContent);
+            String s=new String();
+            int sizeOfCode,sizeOfMap;
+            for(i=0;i<4;i++){
+              s+=fileContent[i];
+            }
+            sizeOfCode=Integer.parseInt(s);
+            System.out.println("size of code:"+sizeOfCode);
+            s="";
+            for(j=i;j<i+4;j++){
+                s+=fileContent[j];
+            }
+            sizeOfMap=Integer.parseInt(s);
+            System.out.println("size of map:"+sizeOfMap);
+            s="";
+            int count=j;
+            for(int k=0;k<sizeOfMap;k++){
+                 c=(char)fileContent[count];
+                 count++;
+                 for(m=count;m<count+4;m++){
+                     s+=fileContent[m];
+                 }
+                size=Integer.parseInt(s);
+                s="";
+                String code=new String();
+                for(n=m;n<m+size;n++){
+                    code+=(char)fileContent[n];
+                }
+                codesMap2.put(c, code);
+                count=n;
+            }
+//            for(int y=count;y<fileContent.length;y++){
+//                //System.out.println("salma");
+//                System.out.println(fileContent[y]);
+//            }
+        }
+        catch (FileNotFoundException ex) {
+                System.out.println("Unable to open file '" + inputFile + "'");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+    }
     public static void main(String[] args) {
         read();
         insertToHeap();
@@ -170,5 +228,7 @@ public class Huffman {
         getHuffmanCodes(root, "");
         printMap(codesMap);
         compress();
+        decompress();
+        printMap(codesMap2);
         }
 }
