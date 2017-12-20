@@ -1,13 +1,10 @@
 package huffman;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -53,7 +50,6 @@ public class Huffman {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        // map.put('`', 1);
     }
 
     public static void insertToHeap() {
@@ -76,9 +72,9 @@ public class Huffman {
         return queue.poll();
     }
 
-    public static void printMap() {
+    public static void printMap(HashMap<Character, String> map) {
         for (char key : map.keySet()) {
-            System.out.println("key: " + key + " value: " + map.get(key));
+            System.out.println(key + ":  " + map.get(key));
         }
     }
 
@@ -88,17 +84,22 @@ public class Huffman {
         }
 
         if (root.getLeft()==null&&root.getRight()==null) {
-            System.out.println(root.getCharacter() + ": " + code);
             codesMap.put(root.getCharacter(), code);
         }
 
         getHuffmanCodes(root.getLeft(), code + "0");
         getHuffmanCodes(root.getRight(), code + "1");
     }
-
-    public static void saveCode() {
+    public static int getCodeSize(){
+        int size=0;
+        for(char key: codesMap.keySet()){
+            size+=codesMap.get(key).length()*map.get(key);
+        }
+        return size;
+    }
+    public static void compress() {
         String inputFile = "inputfile.txt";
-        String outputFile = "output";
+        String outputFile = "compressed";
         FileReader fr = null;
         BufferedReader br = null;
         FileOutputStream stream = null;
@@ -107,9 +108,19 @@ public class Huffman {
             br = new BufferedReader(fr);
            stream = new FileOutputStream(outputFile);
             try {
-                //saving huffman codes
+                //saving huffman codes in the header
+                byte[] CodeSize=ByteBuffer.allocate(4).putInt(getCodeSize()).array();
+                byte [] mapSizeBytes=ByteBuffer.allocate(4).putInt(codesMap.size()).array();
+                    stream.write(mapSizeBytes);
                 for(char key: codesMap.keySet()){
-                    
+                    String character=new String();
+                    character+=key;
+                    byte [] charBytes=character.getBytes();
+                    stream.write(charBytes);
+                    byte [] sizeBytes=ByteBuffer.allocate(4).putInt(codesMap.get(key).length()).array();
+                    stream.write(sizeBytes);
+                    byte[] codeBytes=codesMap.get(key).getBytes();
+                    stream.write(codeBytes);
                 }
                 //saving compressed file
                 String code= new String();
@@ -118,16 +129,27 @@ public class Huffman {
                 while ((ch = br.read()) != -1) {
                     c = (char) ch;
                     code += codesMap.get(c);
-                    if(code.length()%8==0){
-                         byte[] bytes = new BigInteger(code,2).toByteArray();
-                         stream.write(bytes);
+                    if(code.length()%8==0&&code.length()!=0){
+                        int length=code.length();
+                        byte[] bytes = new byte[(code.length()+Byte.SIZE-1)/Byte.SIZE];
+                        char s;
+                        for(int i=0;i<length;i++){
+                        if((s=code.charAt(i))=='1')
+                            bytes[i/Byte.SIZE]=(byte)(bytes[i/Byte.SIZE]|(0x00 >>>(i%Byte.SIZE)));
+                        }
+                        stream.write(bytes);
                          code="";
                     }
                 }
-                
               if(code.length()!=0){
-                  byte[] bytes = new BigInteger(code,2).toByteArray();
-                         stream.write(bytes);
+                  int length=code.length();
+                        byte[] bytes = new byte[(code.length()+Byte.SIZE-1)/Byte.SIZE];
+                        char s;
+                        for(int i=0;i<length;i++){
+                        if((s=code.charAt(i))=='1')
+                            bytes[i/Byte.SIZE]=(byte)(bytes[i/Byte.SIZE]|(0x00 >>>(i%Byte.SIZE)));
+                        }
+                        stream.write(bytes);
               }
              stream.close();
             } catch (FileNotFoundException ex) {
@@ -141,20 +163,12 @@ public class Huffman {
             ex.printStackTrace();
         }
     }
-//    public static void printHeap() {
-//        while (!queue.isEmpty()) {
-//            System.out.println(queue.poll().getValue());
-//        }
-//    }
-
     public static void main(String[] args) {
         read();
-        printMap();
         insertToHeap();
         Node root = buildHuffmanTree();
         getHuffmanCodes(root, "");
-        saveCode();
-        
-        
-    }
+        printMap(codesMap);
+        compress();
+        }
 }
