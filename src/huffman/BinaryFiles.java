@@ -1,27 +1,32 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package huffman;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
-public class Huffman {
-
-    public static HashMap<Character, Integer> map = new HashMap<>();
-    public static HashMap<Character, String> codesMap = new HashMap<>();
-    public static HashMap< String, Character> codesMap2 = new HashMap<>();
-    public static PriorityQueue<Node> queue = new PriorityQueue<>(new Comparator<Node>() {
-        public int compare(Node node1, Node node2) {
+/**
+ *
+ * @author salma
+ */
+public class BinaryFiles {
+    public static HashMap< Byte, Integer> map = new HashMap<>();
+    public static HashMap<Byte, String> codesMap = new HashMap<>();
+    public static HashMap<String,Byte> codesMap2 = new HashMap<>();
+    public static PriorityQueue<BinaryNode> queue = new PriorityQueue<>(new Comparator<BinaryNode>() {
+        public int compare(BinaryNode node1, BinaryNode node2) {
             if (node1.getValue() < node2.getValue()) {
                 return -1;
             }
@@ -31,24 +36,24 @@ public class Huffman {
             return 0;
         }
     });
-
     public static void read() {
 
-        String fileName = "inputFile.txt";
-        String line = null;
+        String fileName = "inputFile.pdf";
+        File file = new File(fileName);
+        FileInputStream stream = null;
         try {
-            FileReader fileReader = new FileReader(fileName);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            int ch;
-            char c;
+            stream = new FileInputStream(file);
+            byte fileContent[] = new byte[(int) file.length()];
+            stream.read(fileContent);
             int freq = 1;
-            while ((ch = bufferedReader.read()) != -1) {
-                c = (char) ch;
-                if (map.containsKey(c)) {
-                    freq = map.get(c) + 1;
-                    map.put(c, freq);
-                } else {
-                    map.put(c, 1);
+            for(byte byt:fileContent){
+                if(map.containsKey(byt))
+                {
+                    freq=map.get(byt)+1;
+                    map.put(byt, freq);
+                }
+                else{
+                    map.put(byt, 1);
                 }
             }
         } catch (FileNotFoundException ex) {
@@ -57,64 +62,63 @@ public class Huffman {
             ex.printStackTrace();
         }
     }
-
+    public static void printMap(HashMap< Byte, Integer> map){
+        for(byte byt:map.keySet()){
+             System.out.println(byt+": "+map.get(byt));
+        }
+       
+    }
     public static void insertToHeap() {
-        for (char key : map.keySet()) {
-            Node node = new Node();
+        for (byte key : map.keySet()) {
+            BinaryNode node = new BinaryNode();
             node.setValue(map.get(key));
-            node.setCharacter(key);
+            node.setByte(key);
             queue.add(node);
         }
 
     }
-
-    public static Node buildHuffmanTree() {
+    public static BinaryNode buildHuffmanTree() {
         while (queue.size() != 1) {
-            Node left = queue.poll();
-            Node right = queue.poll();
-            Node n = new Node(left.getValue() + right.getValue(), '$', left, right);
+            BinaryNode left = queue.poll();
+            BinaryNode right = queue.poll();
+            BinaryNode n = new BinaryNode(left.getValue() + right.getValue(), left, right);
             queue.add(n);
         }
         return queue.poll();
     }
-
-    public static void printMap(HashMap<Character, String> map) {
-        for (char key : map.keySet()) {
-            System.out.println(key + ":  " + map.get(key));
+    public static void printHeap(PriorityQueue<BinaryNode> queue){
+        while(!queue.isEmpty()){
+            System.out.println(queue.poll().getValue());
         }
     }
-
-    public static void getHuffmanCodes(Node root, String code) {
+    public static void getHuffmanCodes(BinaryNode root, String code) {
         if (root == null) {
             return;
         }
 
         if (root.getLeft() == null && root.getRight() == null) {
-            codesMap.put(root.getCharacter(), code);
+            codesMap.put(root.getByte(), code);
         }
 
         getHuffmanCodes(root.getLeft(), code + "0");
         getHuffmanCodes(root.getRight(), code + "1");
     }
-
     public static int getCodeSize() {
         int size = 0;
-        for (char key : codesMap.keySet()) {
+        for (byte key : codesMap.keySet()) {
             size += codesMap.get(key).length() * map.get(key);
         }
         return size;
-    }
-
+    } 
     public static void compress() {
-        String inputFile = "inputFile.txt";
+        String inputFile = "inputFile.pdf";
         String outputFile = "compressed";
-        FileReader fr = null;
-        BufferedReader br = null;
+        File file = new File(inputFile);
+        FileInputStream stream2 = null;
         FileOutputStream stream = null;
         try {
-            fr = new FileReader(inputFile);
-            br = new BufferedReader(fr);
             stream = new FileOutputStream(outputFile);
+            stream2 = new FileInputStream(inputFile);
             try {
                 //saving huffman codes in the header
                 byte[] CodeSize = ByteBuffer.allocate(4).putInt(getCodeSize()).array();
@@ -123,11 +127,8 @@ public class Huffman {
                 byte[] mapSizeBytes = ByteBuffer.allocate(4).putInt(codesMap.size()).array();
                 System.out.println("size of map:" + codesMap.size());
                 stream.write(mapSizeBytes);
-                for (char key : codesMap.keySet()) {
-                    String character = new String();
-                    character += key;
-                    byte[] charBytes = character.getBytes();
-                    stream.write(charBytes);
+                for (byte key : codesMap.keySet()) {
+                    stream.write(key);
                     byte[] sizeBytes = ByteBuffer.allocate(4).putInt(codesMap.get(key).length()).array();
                     stream.write(sizeBytes);
                     byte[] codeBytes = codesMap.get(key).getBytes();
@@ -135,11 +136,12 @@ public class Huffman {
                 }
                 //saving compressed file
                 String code = new String();
-                int ch;
-                char c;
-                while ((ch = br.read()) != -1) {
-                    c = (char) ch;
-                    code += codesMap.get(c);
+                byte fileContent[] = new byte[(int) file.length()];
+            stream2.read(fileContent);
+            int freq = 1;
+            for(byte byt:fileContent) {
+                    code += codesMap.get(byt);
+                    //hnaaaaaaaaaaaaaaaaaaaaaaaa
                     if (code.length() % 8 == 0 && code.length() != 0) {
                         int length = code.length();
                         byte[] bytes = new byte[(length + Byte.SIZE - 1) / Byte.SIZE];
@@ -176,21 +178,19 @@ public class Huffman {
             System.out.println("Unable to open file '" + inputFile + "'");
         }
     }
-
     public static void decompress() {
         String inputFile = "compressed";
-        String outputFile = "decompressed.txt";
+        String outputFile = "decompressed.pdf";
         File file = new File(inputFile);
+        File file2 = new File(outputFile);
         FileInputStream stream = null;
-        BufferedWriter bw = null;
-        FileWriter fw = null;
+        FileOutputStream stream2 = null;
         int i, j, m, size, n, y;
-        char c;
+        byte c=0;
         try {
             stream = new FileInputStream(file);
+            stream2=new FileOutputStream(file2);
             byte fileContent[] = new byte[(int) file.length()];
-            fw = new FileWriter(outputFile);
-            bw = new BufferedWriter(fw);
             stream.read(fileContent);
             stream.close();
             String s = new String();
@@ -209,7 +209,7 @@ public class Huffman {
             s = "";
             int count = j;
             for (int k = 0; k < sizeOfMap; k++) {
-                c = (char) fileContent[count];
+                c = fileContent[count];
                 count++;
                 for (m = count; m < count + 4; m++) {
                     s += String.format("%02x", fileContent[m]);
@@ -224,6 +224,9 @@ public class Huffman {
                 count = n;
             }
             s = "";
+//            for(String key:codesMap2.keySet()){
+//                System.out.println(key+": "+codesMap2.get(key));
+//            }
             try {
                 String decode = new String();
                 int index = 0, taken = 0;
@@ -234,7 +237,7 @@ public class Huffman {
                         if (codesMap2.containsKey(decode)) {
                             taken += decode.length();
                             if (taken <= sizeOfCode) {
-                                bw.write(codesMap2.get(decode));
+                                stream2.write(codesMap2.get(decode));
                                 decode = "";
                                 index = z;
                             }
@@ -242,8 +245,9 @@ public class Huffman {
                     }
                     s = s.substring(index + 1, s.length());
                     decode = "";
+                    index=0;
                 }
-                bw.close();
+                stream2.close();
             } catch (FileNotFoundException ex) {
                 System.out.println("Unable to open file '" + outputFile + "'");
             } catch (IOException ex) {
@@ -256,15 +260,16 @@ public class Huffman {
         }
 
     }
-
-    public static void main(String[] args) {
-//        read();
-//        insertToHeap();
-//        Node root = buildHuffmanTree();
-//        getHuffmanCodes(root, "");
-//        printMap(codesMap);
-//        compress();
-//        decompress();
-        BinaryFiles.execute();
+    public static void execute(){
+        read();
+        insertToHeap();
+        BinaryNode root=buildHuffmanTree();
+        getHuffmanCodes(root,"");
+        compress();
+// for(byte key:codesMap.keySet()){
+//                System.out.println(key+": "+codesMap.get(key));
+//            }
+// System.out.println("*************************************");
+ decompress();
     }
 }
