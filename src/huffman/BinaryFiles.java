@@ -22,9 +22,10 @@ import java.util.PriorityQueue;
  * @author salma
  */
 public class BinaryFiles {
+
     public static HashMap< Byte, Integer> map = new HashMap<>();
     public static HashMap<Byte, String> codesMap = new HashMap<>();
-    public static HashMap<String,Byte> codesMap2 = new HashMap<>();
+    public static HashMap<String, Byte> codesMap2 = new HashMap<>();
     public static PriorityQueue<BinaryNode> queue = new PriorityQueue<>(new Comparator<BinaryNode>() {
         public int compare(BinaryNode node1, BinaryNode node2) {
             if (node1.getValue() < node2.getValue()) {
@@ -36,9 +37,10 @@ public class BinaryFiles {
             return 0;
         }
     });
+
     public static void read() {
 
-        String fileName = "inputFile.pdf";
+        String fileName = "inputFile.jpg";
         File file = new File(fileName);
         FileInputStream stream = null;
         try {
@@ -46,13 +48,11 @@ public class BinaryFiles {
             byte fileContent[] = new byte[(int) file.length()];
             stream.read(fileContent);
             int freq = 1;
-            for(byte byt:fileContent){
-                if(map.containsKey(byt))
-                {
-                    freq=map.get(byt)+1;
+            for (byte byt : fileContent) {
+                if (map.containsKey(byt)) {
+                    freq = map.get(byt) + 1;
                     map.put(byt, freq);
-                }
-                else{
+                } else {
                     map.put(byt, 1);
                 }
             }
@@ -62,12 +62,14 @@ public class BinaryFiles {
             ex.printStackTrace();
         }
     }
-    public static void printMap(HashMap< Byte, Integer> map){
-        for(byte byt:map.keySet()){
-             System.out.println(byt+": "+map.get(byt));
+
+    public static void printMap(HashMap< Byte, Integer> map) {
+        for (byte byt : map.keySet()) {
+            System.out.println(byt + ": " + map.get(byt));
         }
-       
+
     }
+
     public static void insertToHeap() {
         for (byte key : map.keySet()) {
             BinaryNode node = new BinaryNode();
@@ -77,6 +79,7 @@ public class BinaryFiles {
         }
 
     }
+
     public static BinaryNode buildHuffmanTree() {
         while (queue.size() != 1) {
             BinaryNode left = queue.poll();
@@ -86,11 +89,13 @@ public class BinaryFiles {
         }
         return queue.poll();
     }
-    public static void printHeap(PriorityQueue<BinaryNode> queue){
-        while(!queue.isEmpty()){
+
+    public static void printHeap(PriorityQueue<BinaryNode> queue) {
+        while (!queue.isEmpty()) {
             System.out.println(queue.poll().getValue());
         }
     }
+
     public static void getHuffmanCodes(BinaryNode root, String code) {
         if (root == null) {
             return;
@@ -103,15 +108,17 @@ public class BinaryFiles {
         getHuffmanCodes(root.getLeft(), code + "0");
         getHuffmanCodes(root.getRight(), code + "1");
     }
+
     public static int getCodeSize() {
         int size = 0;
         for (byte key : codesMap.keySet()) {
             size += codesMap.get(key).length() * map.get(key);
         }
         return size;
-    } 
+    }
+
     public static void compress() {
-        String inputFile = "inputFile.pdf";
+        String inputFile = "inputFile.jpg";
         String outputFile = "compressed";
         File file = new File(inputFile);
         FileInputStream stream2 = null;
@@ -137,11 +144,10 @@ public class BinaryFiles {
                 //saving compressed file
                 String code = new String();
                 byte fileContent[] = new byte[(int) file.length()];
-            stream2.read(fileContent);
-            int freq = 1;
-            for(byte byt:fileContent) {
+                stream2.read(fileContent);
+                int freq = 1;
+                for (byte byt : fileContent) {
                     code += codesMap.get(byt);
-                    //hnaaaaaaaaaaaaaaaaaaaaaaaa
                     if (code.length() % 8 == 0 && code.length() != 0) {
                         int length = code.length();
                         byte[] bytes = new byte[(length + Byte.SIZE - 1) / Byte.SIZE];
@@ -178,18 +184,18 @@ public class BinaryFiles {
             System.out.println("Unable to open file '" + inputFile + "'");
         }
     }
+
     public static void decompress() {
         String inputFile = "compressed";
-        String outputFile = "decompressed.pdf";
+        String outputFile = "decompressed.jpg";
         File file = new File(inputFile);
-        File file2 = new File(outputFile);
         FileInputStream stream = null;
         FileOutputStream stream2 = null;
         int i, j, m, size, n, y;
-        byte c=0;
+        byte c = 0;
         try {
-            stream = new FileInputStream(file);
-            stream2=new FileOutputStream(file2);
+            stream = new FileInputStream(inputFile);
+            stream2 = new FileOutputStream(outputFile);
             byte fileContent[] = new byte[(int) file.length()];
             stream.read(fileContent);
             stream.close();
@@ -224,11 +230,8 @@ public class BinaryFiles {
                 count = n;
             }
             s = "";
-//            for(String key:codesMap2.keySet()){
-//                System.out.println(key+": "+codesMap2.get(key));
-//            }
             try {
-                String decode = new String();
+                String decode = "";
                 int index = 0, taken = 0;
                 for (y = count; y < fileContent.length; y++) {
                     s += String.format("%8s", Integer.toBinaryString(fileContent[y] & 0xFF)).replace(' ', '0');
@@ -243,9 +246,11 @@ public class BinaryFiles {
                             }
                         }
                     }
-                    s = s.substring(index + 1, s.length());
+                    if (index != 0) {
+                        s = s.substring(index + 1, s.length());
+                        index = 0;
+                    }
                     decode = "";
-                    index=0;
                 }
                 stream2.close();
             } catch (FileNotFoundException ex) {
@@ -260,16 +265,13 @@ public class BinaryFiles {
         }
 
     }
-    public static void execute(){
+
+    public static void execute() {
         read();
         insertToHeap();
-        BinaryNode root=buildHuffmanTree();
-        getHuffmanCodes(root,"");
+        BinaryNode root = buildHuffmanTree();
+        getHuffmanCodes(root, "");
         compress();
-// for(byte key:codesMap.keySet()){
-//                System.out.println(key+": "+codesMap.get(key));
-//            }
-// System.out.println("*************************************");
- decompress();
+        decompress();
     }
 }

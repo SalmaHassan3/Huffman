@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -240,7 +239,10 @@ public class Huffman {
                             }
                         }
                     }
-                    s = s.substring(index + 1, s.length());
+                    if (index != 0) {
+                        s = s.substring(index + 1, s.length());
+                        index = 0;
+                    }
                     decode = "";
                 }
                 bw.close();
@@ -257,14 +259,17 @@ public class Huffman {
 
     }
 
+    public static void execute() {
+        read();
+        insertToHeap();
+        Node root = buildHuffmanTree();
+        getHuffmanCodes(root, "");
+        compress();
+        decompress();
+    }
+
     public static void main(String[] args) {
-//        read();
-//        insertToHeap();
-//        Node root = buildHuffmanTree();
-//        getHuffmanCodes(root, "");
-//        printMap(codesMap);
-//        compress();
-//        decompress();
+       // execute();
         BinaryFiles.execute();
     }
 }
