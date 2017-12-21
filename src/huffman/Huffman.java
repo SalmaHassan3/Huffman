@@ -19,7 +19,7 @@ public class Huffman {
 
     public static HashMap<Character, Integer> map = new HashMap<>();
     public static HashMap<Character, String> codesMap = new HashMap<>();
-    public static HashMap< String,Character> codesMap2 = new HashMap<>();
+    public static HashMap< String, Character> codesMap2 = new HashMap<>();
     public static PriorityQueue<Node> queue = new PriorityQueue<>(new Comparator<Node>() {
         public int compare(Node node1, Node node2) {
             if (node1.getValue() < node2.getValue()) {
@@ -184,7 +184,7 @@ public class Huffman {
         FileInputStream stream = null;
         BufferedWriter bw = null;
         FileWriter fw = null;
-        int i, j, m, size, n,y;
+        int i, j, m, size, n, y;
         char c;
         try {
             stream = new FileInputStream(file);
@@ -220,40 +220,41 @@ public class Huffman {
                 for (n = m; n < m + size; n++) {
                     code += (char) fileContent[n];
                 }
-                codesMap2.put(code,c);
+                codesMap2.put(code, c);
                 count = n;
             }
             s = "";
-             try{
-            String decode=new String(); int index=0,taken=0;
-            for (y = count; y < fileContent.length; y++) {
-                s += String.format("%8s", Integer.toBinaryString(fileContent[y] & 0xFF)).replace(' ', '0');
-                for(int z=0;z<s.length();z++){
-                decode+=s.charAt(z);
-                if(codesMap2.containsKey(decode)){
-                    taken+=decode.length();
-                    if(taken<=sizeOfCode){
-                    bw.write(codesMap2.get(decode));
-                    decode="";
-                    index=z;}
+            try {
+                String decode = new String();
+                int index = 0, taken = 0;
+                for (y = count; y < fileContent.length; y++) {
+                    s += String.format("%8s", Integer.toBinaryString(fileContent[y] & 0xFF)).replace(' ', '0');
+                    for (int z = 0; z < s.length(); z++) {
+                        decode += s.charAt(z);
+                        if (codesMap2.containsKey(decode)) {
+                            taken += decode.length();
+                            if (taken <= sizeOfCode) {
+                                bw.write(codesMap2.get(decode));
+                                decode = "";
+                                index = z;
+                            }
+                        }
+                    }
+                    s = s.substring(index + 1, s.length());
+                    decode = "";
                 }
+                bw.close();
+            } catch (FileNotFoundException ex) {
+                System.out.println("Unable to open file '" + outputFile + "'");
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-                s=s.substring(index+1,s.length());
-                decode="";
-            }
-            bw.close();
-        }
-            catch (FileNotFoundException ex) {
-            System.out.println("Unable to open file '" + outputFile + "'");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
         } catch (FileNotFoundException ex) {
             System.out.println("Unable to open file '" + inputFile + "'");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-       
+
     }
 
     public static void main(String[] args) {
