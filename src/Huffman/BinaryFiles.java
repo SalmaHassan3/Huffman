@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Huffman;
 
 import java.io.File;
@@ -15,10 +11,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
-/**
- *
- * @author salma
- */
 public class BinaryFiles {
 
     public  HashMap< Byte, Integer> map = new HashMap<>();
