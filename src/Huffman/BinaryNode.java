@@ -3,25 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package huffman;
+package Huffman;
 
 /**
  *
  * @author salma
  */
-public class Node {
+public class BinaryNode {
    private int value;
-   private char character;
-   private Node left=null;
-   private Node right=null;
+   private byte byt;
+   private BinaryNode left=null;
+   private BinaryNode right=null;
 
-    public Node(int freq, char character, Node left, Node right) {
+    public BinaryNode(int freq, BinaryNode left, BinaryNode right) {
         this.value = freq;
-        this.character = character;
         this.left = left;
         this.right = right;
     }
-    public Node(){
+    public BinaryNode(){
         
     }
     public int getValue() {
@@ -32,30 +31,27 @@ public class Node {
         this.value = value;
     }
 
-    public void setCharacter(char character) {
-        this.character = character;
+    public void setByte(byte byt) {
+        this.byt = byt;
     }
 
    
-    public char getCharacter() {
-        return character;
+    public byte getByte() {
+        return byt;
     }
 
-    public void setLeft(Node left) {
+    public void setLeft(BinaryNode left) {
         this.left = left;
     }
 
-    public void setRight(Node right) {
+    public void setRight(BinaryNode right) {
         this.right = right;
     }
-    public Node getLeft() {
+    public BinaryNode getLeft() {
         return left;
     }
 
-    public Node getRight() {
+    public BinaryNode getRight() {
         return right;
     }
-   
-   
 }
-

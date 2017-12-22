@@ -3,14 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package huffman;
+package Huffman;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
@@ -23,10 +21,10 @@ import java.util.PriorityQueue;
  */
 public class BinaryFiles {
 
-    public static HashMap< Byte, Integer> map = new HashMap<>();
-    public static HashMap<Byte, String> codesMap = new HashMap<>();
-    public static HashMap<String, Byte> codesMap2 = new HashMap<>();
-    public static PriorityQueue<BinaryNode> queue = new PriorityQueue<>(new Comparator<BinaryNode>() {
+    public  HashMap< Byte, Integer> map = new HashMap<>();
+    public  HashMap<Byte, String> codesMap = new HashMap<>();
+    public  HashMap<String, Byte> codesMap2 = new HashMap<>();
+    public  PriorityQueue<BinaryNode> queue = new PriorityQueue<>(new Comparator<BinaryNode>() {
         public int compare(BinaryNode node1, BinaryNode node2) {
             if (node1.getValue() < node2.getValue()) {
                 return -1;
@@ -38,7 +36,7 @@ public class BinaryFiles {
         }
     });
 
-    public static void read() {
+    public  void read() {
 
         String fileName = "inputFile.jpg";
         File file = new File(fileName);
@@ -70,7 +68,7 @@ public class BinaryFiles {
 
     }
 
-    public static void insertToHeap() {
+    public  void insertToHeap() {
         for (byte key : map.keySet()) {
             BinaryNode node = new BinaryNode();
             node.setValue(map.get(key));
@@ -80,7 +78,7 @@ public class BinaryFiles {
 
     }
 
-    public static BinaryNode buildHuffmanTree() {
+    public  BinaryNode buildHuffmanTree() {
         while (queue.size() != 1) {
             BinaryNode left = queue.poll();
             BinaryNode right = queue.poll();
@@ -90,13 +88,13 @@ public class BinaryFiles {
         return queue.poll();
     }
 
-    public static void printHeap(PriorityQueue<BinaryNode> queue) {
+    public  void printHeap(PriorityQueue<BinaryNode> queue) {
         while (!queue.isEmpty()) {
             System.out.println(queue.poll().getValue());
         }
     }
 
-    public static void getHuffmanCodes(BinaryNode root, String code) {
+    public  void getHuffmanCodes(BinaryNode root, String code) {
         if (root == null) {
             return;
         }
@@ -109,7 +107,7 @@ public class BinaryFiles {
         getHuffmanCodes(root.getRight(), code + "1");
     }
 
-    public static int getCodeSize() {
+    public  int getCodeSize() {
         int size = 0;
         for (byte key : codesMap.keySet()) {
             size += codesMap.get(key).length() * map.get(key);
@@ -117,7 +115,7 @@ public class BinaryFiles {
         return size;
     }
 
-    public static void compress() {
+    public  void compress() {
         String inputFile = "inputFile.jpg";
         String outputFile = "compressed";
         File file = new File(inputFile);
@@ -185,7 +183,7 @@ public class BinaryFiles {
         }
     }
 
-    public static void decompress() {
+    public  void decompress() {
         String inputFile = "compressed";
         String outputFile = "decompressed.jpg";
         File file = new File(inputFile);
@@ -266,7 +264,7 @@ public class BinaryFiles {
 
     }
 
-    public static void execute() {
+    public  void execute() {
         read();
         insertToHeap();
         BinaryNode root = buildHuffmanTree();

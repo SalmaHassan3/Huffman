@@ -1,4 +1,9 @@
-package huffman;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Huffman;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,12 +19,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
-public class Huffman {
+public class TextFiles {
 
-    public static HashMap<Character, Integer> map = new HashMap<>();
-    public static HashMap<Character, String> codesMap = new HashMap<>();
-    public static HashMap< String, Character> codesMap2 = new HashMap<>();
-    public static PriorityQueue<Node> queue = new PriorityQueue<>(new Comparator<Node>() {
+    public HashMap<Character, Integer> map = new HashMap<>();
+    public HashMap<Character, String> codesMap = new HashMap<>();
+    public HashMap< String, Character> codesMap2 = new HashMap<>();
+    public PriorityQueue<Node> queue = new PriorityQueue<>(new Comparator<Node>() {
         public int compare(Node node1, Node node2) {
             if (node1.getValue() < node2.getValue()) {
                 return -1;
@@ -31,7 +36,7 @@ public class Huffman {
         }
     });
 
-    public static void read() {
+    public void read() {
 
         String fileName = "inputFile.txt";
         String line = null;
@@ -57,7 +62,7 @@ public class Huffman {
         }
     }
 
-    public static void insertToHeap() {
+    public void insertToHeap() {
         for (char key : map.keySet()) {
             Node node = new Node();
             node.setValue(map.get(key));
@@ -67,7 +72,7 @@ public class Huffman {
 
     }
 
-    public static Node buildHuffmanTree() {
+    public Node buildHuffmanTree() {
         while (queue.size() != 1) {
             Node left = queue.poll();
             Node right = queue.poll();
@@ -77,13 +82,13 @@ public class Huffman {
         return queue.poll();
     }
 
-    public static void printMap(HashMap<Character, String> map) {
+    public void printMap(HashMap<Character, String> map) {
         for (char key : map.keySet()) {
             System.out.println(key + ":  " + map.get(key));
         }
     }
 
-    public static void getHuffmanCodes(Node root, String code) {
+    public void getHuffmanCodes(Node root, String code) {
         if (root == null) {
             return;
         }
@@ -96,7 +101,7 @@ public class Huffman {
         getHuffmanCodes(root.getRight(), code + "1");
     }
 
-    public static int getCodeSize() {
+    public int getCodeSize() {
         int size = 0;
         for (char key : codesMap.keySet()) {
             size += codesMap.get(key).length() * map.get(key);
@@ -104,7 +109,7 @@ public class Huffman {
         return size;
     }
 
-    public static void compress() {
+    public void compress() {
         String inputFile = "inputFile.txt";
         String outputFile = "compressed";
         FileReader fr = null;
@@ -176,7 +181,7 @@ public class Huffman {
         }
     }
 
-    public static void decompress() {
+    public void decompress() {
         String inputFile = "compressed";
         String outputFile = "decompressed.txt";
         File file = new File(inputFile);
@@ -259,17 +264,12 @@ public class Huffman {
 
     }
 
-    public static void execute() {
+    public void execute() {
         read();
         insertToHeap();
         Node root = buildHuffmanTree();
         getHuffmanCodes(root, "");
         compress();
         decompress();
-    }
-
-    public static void main(String[] args) {
-       // execute();
-        BinaryFiles.execute();
     }
 }
