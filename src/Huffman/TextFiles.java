@@ -122,10 +122,8 @@ public class TextFiles {
             try {
                 //saving huffman codes in the header
                 byte[] CodeSize = ByteBuffer.allocate(4).putInt(getCodeSize()).array();
-                System.out.println("size of code:" + getCodeSize());
                 stream.write(CodeSize);
                 byte[] mapSizeBytes = ByteBuffer.allocate(4).putInt(codesMap.size()).array();
-                System.out.println("size of map:" + codesMap.size());
                 stream.write(mapSizeBytes);
                 for (char key : codesMap.keySet()) {
                     String character = new String();
@@ -203,13 +201,11 @@ public class TextFiles {
                 s += String.format("%02x", fileContent[i]);
             }
             sizeOfCode = Integer.parseInt(s, 16);
-            System.out.println("size of code:" + sizeOfCode);
             s = "";
             for (j = i; j < i + 4; j++) {
                 s += String.format("%02x", fileContent[j]);
             }
             sizeOfMap = Integer.parseInt(s, 16);
-            System.out.println("size of map:" + sizeOfMap);
             s = "";
             int count = j;
             for (int k = 0; k < sizeOfMap; k++) {

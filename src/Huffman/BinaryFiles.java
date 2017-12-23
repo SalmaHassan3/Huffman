@@ -16,6 +16,7 @@ public class BinaryFiles {
     public  HashMap< Byte, Integer> map = new HashMap<>();
     public  HashMap<Byte, String> codesMap = new HashMap<>();
     public  HashMap<String, Byte> codesMap2 = new HashMap<>();
+    long sizeBefore,sizeAfter;
     public  PriorityQueue<BinaryNode> queue = new PriorityQueue<>(new Comparator<BinaryNode>() {
         public int compare(BinaryNode node1, BinaryNode node2) {
             if (node1.getValue() < node2.getValue()) {
@@ -30,12 +31,13 @@ public class BinaryFiles {
 
     public  void read() {
 
-        String fileName = "inputFile.jpg";
+        String fileName = "inputFile.gif";
         File file = new File(fileName);
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(file);
             byte fileContent[] = new byte[(int) file.length()];
+            sizeBefore=file.length();
             stream.read(fileContent);
             int freq = 1;
             for (byte byt : fileContent) {
@@ -108,7 +110,7 @@ public class BinaryFiles {
     }
 
     public  void compress() {
-        String inputFile = "inputFile.jpg";
+        String inputFile = "inputFile.gif";
         String outputFile = "compressed";
         File file = new File(inputFile);
         FileInputStream stream2 = null;
@@ -119,10 +121,8 @@ public class BinaryFiles {
             try {
                 //saving huffman codes in the header
                 byte[] CodeSize = ByteBuffer.allocate(4).putInt(getCodeSize()).array();
-                System.out.println("size of code:" + getCodeSize());
                 stream.write(CodeSize);
                 byte[] mapSizeBytes = ByteBuffer.allocate(4).putInt(codesMap.size()).array();
-                System.out.println("size of map:" + codesMap.size());
                 stream.write(mapSizeBytes);
                 for (byte key : codesMap.keySet()) {
                     stream.write(key);
@@ -177,8 +177,13 @@ public class BinaryFiles {
 
     public  void decompress() {
         String inputFile = "compressed";
-        String outputFile = "decompressed.jpg";
+        String outputFile = "decompressed.gif";
         File file = new File(inputFile);
+        sizeAfter=file.length();
+        if(sizeBefore<sizeAfter){
+            System.out.println("File can't be compressed");
+            System.exit(0);
+        }
         FileInputStream stream = null;
         FileOutputStream stream2 = null;
         int i, j, m, size, n, y;
@@ -195,13 +200,11 @@ public class BinaryFiles {
                 s += String.format("%02x", fileContent[i]);
             }
             sizeOfCode = Integer.parseInt(s, 16);
-            System.out.println("size of code:" + sizeOfCode);
             s = "";
             for (j = i; j < i + 4; j++) {
                 s += String.format("%02x", fileContent[j]);
             }
             sizeOfMap = Integer.parseInt(s, 16);
-            System.out.println("size of map:" + sizeOfMap);
             s = "";
             int count = j;
             for (int k = 0; k < sizeOfMap; k++) {
