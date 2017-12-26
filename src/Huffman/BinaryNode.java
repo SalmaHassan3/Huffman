@@ -1,4 +1,3 @@
-
 package Huffman;
 
 public class BinaryNode {

@@ -1,4 +1,3 @@
-
 package Huffman;
 
 import java.io.File;
@@ -16,7 +15,6 @@ public class BinaryFiles {
     public  HashMap< Byte, Integer> map = new HashMap<>();
     public  HashMap<Byte, String> codesMap = new HashMap<>();
     public  HashMap<String, Byte> codesMap2 = new HashMap<>();
-    long sizeBefore,sizeAfter;
     public  PriorityQueue<BinaryNode> queue = new PriorityQueue<>(new Comparator<BinaryNode>() {
         public int compare(BinaryNode node1, BinaryNode node2) {
             if (node1.getValue() < node2.getValue()) {
@@ -31,13 +29,12 @@ public class BinaryFiles {
 
     public  void read() {
 
-        String fileName = "inputFile.gif";
+        String fileName = "inputFile.jpg";
         File file = new File(fileName);
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(file);
             byte fileContent[] = new byte[(int) file.length()];
-            sizeBefore=file.length();
             stream.read(fileContent);
             int freq = 1;
             for (byte byt : fileContent) {
@@ -110,9 +107,10 @@ public class BinaryFiles {
     }
 
     public  void compress() {
-        String inputFile = "inputFile.gif";
+        String inputFile = "inputFile.jpg";
         String outputFile = "compressed";
         File file = new File(inputFile);
+        File file2 = new File(outputFile);
         FileInputStream stream2 = null;
         FileOutputStream stream = null;
         try {
@@ -164,6 +162,11 @@ public class BinaryFiles {
                     stream.write(bytes);
                     code = "";
                 }
+                if(file.length()<file2.length()){
+                    System.out.println("File can't be compressed");
+                    file2.delete();
+                    System.exit(0);
+                }
                 stream.close();
             } catch (FileNotFoundException ex) {
                 System.out.println("Unable to open file '" + outputFile + "'");
@@ -177,13 +180,8 @@ public class BinaryFiles {
 
     public  void decompress() {
         String inputFile = "compressed";
-        String outputFile = "decompressed.gif";
+        String outputFile = "decompressed.jpg";
         File file = new File(inputFile);
-        sizeAfter=file.length();
-        if(sizeBefore<sizeAfter){
-            System.out.println("File can't be compressed");
-            System.exit(0);
-        }
         FileInputStream stream = null;
         FileOutputStream stream2 = null;
         int i, j, m, size, n, y;
@@ -259,12 +257,14 @@ public class BinaryFiles {
 
     }
 
-    public  void execute() {
+    public void executeCompression() {
         read();
         insertToHeap();
         BinaryNode root = buildHuffmanTree();
         getHuffmanCodes(root, "");
         compress();
+    }
+    public void executeDecompression() {
         decompress();
     }
 }

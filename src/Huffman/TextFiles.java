@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package Huffman;
 
 import java.io.BufferedReader;
@@ -76,7 +71,7 @@ public class TextFiles {
         while (queue.size() != 1) {
             Node left = queue.poll();
             Node right = queue.poll();
-            Node n = new Node(left.getValue() + right.getValue(), '$', left, right);
+            Node n = new Node(left.getValue() + right.getValue(), ' ', left, right);
             queue.add(n);
         }
         return queue.poll();
@@ -92,7 +87,10 @@ public class TextFiles {
         if (root == null) {
             return;
         }
-
+        if(map.size()==1){
+            codesMap.put(root.getCharacter(), "0");
+            return;
+        }
         if (root.getLeft() == null && root.getRight() == null) {
             codesMap.put(root.getCharacter(), code);
         }
@@ -260,12 +258,15 @@ public class TextFiles {
 
     }
 
-    public void execute() {
+    public void executeCompression() {
         read();
         insertToHeap();
         Node root = buildHuffmanTree();
         getHuffmanCodes(root, "");
         compress();
+    }
+    public void executeDecompression() {
         decompress();
     }
+    
 }
